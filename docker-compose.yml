@@ -14,15 +14,8 @@ services:
       - TZ=Europe/London
     volumes:
       - ./config/wireguard:/data/wireguard:Z
-      - /lib/modules:/lib/modules:ro
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
-    dns:
-      - 8.8.8.8 # Your VPN's DNS Server, not this one
-    ports:
-      - 80:80
-      - 443:443
-      #- 8888:8888 # OR use proxy http://172.20.0.20:8888
     networks:
       service:
         ipv4_address: 172.20.0.20
