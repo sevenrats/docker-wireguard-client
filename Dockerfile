@@ -15,7 +15,6 @@ ENV \
     TERM="xterm"
 
 RUN \
-
     apk --no-cache add --virtual .build-deps\
         curl-dev \
         gcc \

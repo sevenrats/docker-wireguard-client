@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+
 # Proxy Signals
 sp_processes=("tinyproxy") # These are processes that will receive all signals that aren't overloaded
 . /signalproxy.sh
