@@ -1,13 +1,3 @@
-_connected () {
-    choices=( "amazon.com" "google.com" "facebook.com" "microsoft.com" )
-    choice=${choices[$(($RANDOM % ${#choices[@]}))]}
-    if curl -s $choice > /dev/null; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 _provider () { 
     ACCOUNT=$(echo "$1" | jq -r '.Account')
     PRIVATEKEY=$(echo "$1" | jq -r '.PrivateKey')
@@ -16,7 +6,7 @@ _provider () {
     # args are ACCOUNT_NUMBER, PRIVATE KEY
     account=$(curl -fsSL https://api.mullvad.net/www/accounts/$ACCOUNT)
     city_code=$(echo $account | jq -r --arg wgkey $PUBKEY '.account.city_ports[] | select(.wgkey==$wgkey) | .city_code ' | sed 's/.*-//' ) 
-    all_servers=$(curl --get https://api.mullvad.net/www/relays/wireguard/ | jq )
+    all_servers=$(curl --get -s https://api.mullvad.net/www/relays/wireguard/ | jq )
     _candidates=$(echo $all_servers | jq -c --arg city_code $city_code '.[] | select(.city_code == $city_code) ' )
     readarray -t candidates < <(echo "${_candidates[@]}")
     candidate=${candidates[$(($RANDOM % ${#candidates[@]}))]}

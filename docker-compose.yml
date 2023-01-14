@@ -2,7 +2,7 @@
 version: "3"
 services:
   vpn:
-    image: sevenrats/wireguard-client:next
+    image: sevenrats/wireguard-client:next-next
     container_name: vpn
     cap_add:
       - NET_ADMIN

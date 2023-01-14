@@ -1,21 +1,3 @@
-
-printServerLatency() {
-    serverIP=$1
-    regionID=$2
-    time=$(LC_NUMERIC=en_US.utf8 curl -o /dev/null -s \
-        --connect-timeout "$MAX_LATENCY" \
-        --write-out "%{time_connect}" \
-        "http://$serverIP:443")
-    if [[ $? -eq 0 ]]; then
-        #>&2 echo "Got latency ${time}s for region: $regionID"
-        echo "$time $regionID $serverIP"
-    fi
-    # Sort the latencyList, ordered by latency
-    #sort -no /tmp/latency /tmp/latency
-}
-
-export -f printServerLatency
-
 _pia_get_token () {
     if [[ -z $PIA_USER || -z $PIA_PASS ]]; then
         return 1
@@ -49,7 +31,7 @@ _pia_get_region () {
     fi
     summarized_region_data="$( echo "$all_region_data" |
         jq -r '.regions[] | select(.port_forward==true) |
-        .servers.meta[0].ip+" "+.id+" "+.name+" "+(.geo|tostring)' )"
+        .servers.meta[0].ip+" "+.id' )"
     selectedRegion="$(echo "$summarized_region_data" |
         xargs -P 8 -I{} bash -c 'printServerLatency {}' |
         sort | head -1 | awk '{ print $2 }')"
@@ -68,7 +50,7 @@ _bind_port () {
     WG_GATEWAY=$(echo $pfinfo | jq -r '.gateway')
     payload=$(echo $pfinfo | jq -r '.payload')
     signature=$(echo $pfinfo | jq -r '.signature')
-    bind_port_response="$(curl -G -m 5 \
+    bind_port_response="$(curl -Gs -m 5 \
         --connect-to "$WG_HOSTNAME::$WG_GATEWAY:" \
         --cacert "/etc/vpn/util/ca.rsa.4096.crt" \
         --data-urlencode "payload=${payload}" \
@@ -117,8 +99,7 @@ _pia_pf () {
 
 
 _connected () {
-    # connected gets called on init and by the healthcheck.
-    # for pia it will do the initial port bind the first time it is called.
+    # PIA overloads _connected so that it can hack in the initial bindport
     if ! $InitialPortForwardDone; then 
         if _pia_pf; then
             InitialPortForwardDone=true
@@ -138,7 +119,6 @@ _connected () {
 }
 
 _provider () {
-    #echo "sysctl -w net.ipv6.conf.all.disable_ipv6=1"
     PIA_USER=$(echo "$1" | jq -r '.User')
     PIA_PASS=$(echo "$1" | jq -r '.Password')
     PRIVATEKEY=$(echo "$1" | jq -r '.PrivateKey')
