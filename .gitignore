@@ -1,4 +1,5 @@
-config
+data
+build
 Dockerfile.next
 
 # Windows image file caches

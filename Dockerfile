@@ -29,7 +29,7 @@ RUN \
         /defaults \
         /data/wireguard/ \
         /run/tinyproxy/ && \
-    ln -s /data/wireguard /etc/wireguard && \
+    ln -s /data/vpn /etc/wireguard && \
     echo "**** install runtime packages ****" && \
     apk add --no-cache \
         alpine-release \
@@ -38,6 +38,7 @@ RUN \
         catatonit \
         coreutils \
         curl \
+        jq \
         procps \
         shadow \
         tzdata \
@@ -68,6 +69,7 @@ RUN \
         /tmp/* \
         /root/.cache
 
+ENV VPN_BUCKET_PATH "/data/vpn/wg0.bkt"
 ENV TINYPROXY_CONF "tinyproxy/tinyproxy.conf"
 ENV CONFS $TINYPROXY_CONF
 
