@@ -39,11 +39,7 @@ _configure () {
 cat <<EOF
 `cat /etc/vpn/util/peer.conf`
 EOF")
-if ! [ -z $8 ]; then
-    s="${s/Endpoint/Presharedkey = $8
-Endpoint}"
-fi
-echo "$s"
+    echo "$s"
 }
 
 _healthcheck_vpn () {
@@ -97,8 +93,7 @@ _connect () {
         "Mullvad" ) . /etc/vpn/provider/mullvad/mullvad.sh;;
         "AirVPN" ) . /etc/vpn/provider/airvpn/airvpn.sh;;
     esac;
-    VALUES=$(_provider $CONNECTION)
-    WG_CONFIG=$(_configure $VALUES)
+    WG_CONFIG=$(_provider $CONNECTION)
     echo "$WG_CONFIG"
     echo "$WG_CONFIG" > $WG_CONFIG_PATH
     wg-quick up wg0

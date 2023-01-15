@@ -17,5 +17,5 @@ _provider () {
     allowedips="0.0.0.0/0"
     port=$(echo $account | jq -r --arg pubkey $PUBKEY '.account.wg_peers[] | select(.key.public==$pubkey ) | .city_ports[0].port')
     echo $port > /data/vpn/port.dat
-    echo $address $PRIVATEKEY $dns 15 $serverkey $endpoint $allowedips
+    echo "$(_configure $address $PRIVATEKEY $dns 15 $serverkey $endpoint $allowedips)"
 }

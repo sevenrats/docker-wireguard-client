@@ -154,5 +154,5 @@ _provider () {
         --arg token $TOKEN \
         '{"provider": $provider, "hostname": $hostname, "gateway": $gateway, "token": $token }')
     echo $pfinfo > /etc/vpn/.pfinfo
-    echo $address $privatekey $dns $keepalive $serverkey $endpoint $allowedips
+    echo "$(_configure $address $privatekey $dns $keepalive $serverkey $endpoint $allowedips)"
 }
