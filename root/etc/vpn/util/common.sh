@@ -94,6 +94,11 @@ _connect () {
         "AirVPN" ) . /etc/vpn/provider/airvpn/airvpn.sh;;
     esac;
     WG_CONFIG=$(_provider $CONNECTION)
+    WG_CONFIG="${WG_CONFIG/"
+[Peer]"/PostUp = DROUTE=\$(ip route | grep default | awk '{print $3}'); HOMENET=192.168.0.0/16; HOMENET2=172.16.0.0/12; ip route add \$HOMENET2 via \$DROUTE; ip route add \$HOMENET via \$DROUTE;iptables -I OUTPUT -d \$HOMENET -j ACCEPT;iptables -A OUTPUT -d \$HOMENET2 -j ACCEPT; iptables -A OUTPUT ! -o %i -m mark ! --mark \$(wg show %i fwmark) -m addrtype ! --dst-type LOCAL -j REJECT
+PreDown = DROUTE=\$(ip route | grep default | awk '{print $3}'); HOMENET=192.168.0.0/16; HOMENET2=172.16.0.0/12; ip route del \$HOMENET2 via \$DROUTE; ip route del \$HOMENET via \$DROUTE; iptables -D OUTPUT ! -o %i -m mark ! --mark \$(wg show %i fwmark) -m addrtype ! --dst-type LOCAL -j REJECT; iptables -D OUTPUT -d \$HOMENET -j ACCEPT; iptables -D OUTPUT -d \$HOMENET2 -j ACCEPT
+
+[Peer]}"
     echo "$WG_CONFIG"
     echo "$WG_CONFIG" > $WG_CONFIG_PATH
     wg-quick up wg0
