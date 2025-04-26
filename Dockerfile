@@ -1,11 +1,22 @@
 # syntax=docker/dockerfile:1
 
+from rust:alpine as builder
+
+RUN \
+    apk --no-cache add \
+        musl-dev \
+        git && \
+    git clone https://github.com/sevenrats/fastip-rs  && \
+    cd fastip-rs && \
+    cargo build --release --no-default-features --target x86_64-unknown-linux-musl && \
+    mv target/x86_64-unknown-linux-musl/release/fastip /fastip
+
 FROM alpine:3.17
 ARG BUILD_DATE
 LABEL	maintainer="sevenrats" \
 		build-date=$BUILD_DATE \
-		name="Electrum-NMC" \
-		description="Electrum-NMC with JSON-RPC enabled" \
+		name="Docker Wireguard Client" \
+		description="Docker Wireguard Client" \
 		version=$VERSION \
 		license="GPLv3"
 
@@ -58,10 +69,6 @@ RUN \
     # add signalproxy
     git clone --depth 1 https://github.com/sevenrats/bash-signal-proxy.git && \
     mv bash-signal-proxy/signalproxy.sh / && \
-    # build ip checker
-    git clone https://github.com/sevenrats/fastip-c.git && \
-    gcc -Wall -o fastip-c/fastip fastip-c/main.c fastip-c/util.c -l curl && \
-    mv fastip-c/fastip /usr/bin && \
     echo "**** cleanup ****" && \
     apk del .build-deps && \
     rm -rf \
@@ -75,6 +82,7 @@ ENV TINYPROXY_CONF "tinyproxy/tinyproxy.conf"
 ENV CONFS $TINYPROXY_CONF
 
 # add local files
+COPY --from=builder /fastip /usr/bin/fastip
 COPY root/ /
 
 EXPOSE 8888/udp
